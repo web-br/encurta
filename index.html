@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔗 Encurtador JSON - Painel</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 2em;
+            background: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stats {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            justify-content: center;
+        }
+
+        .stat {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 10px;
+            padding: 15px 30px;
+            text-align: center;
+        }
+
+        .stat-num {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #38bdf8;
+        }
+
+        .stat-label {
+            color: #64748b;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+
+        .card {
+            background: #1e293b;
+            border-radius: 12px;
+            border: 1px solid #334155;
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 20px 25px;
+            border-bottom: 1px solid #334155;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-header h2 {
+            color: #94a3b8;
+            font-size: 1em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            padding: 15px 25px;
+            color: #64748b;
+            font-size: 0.85em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid #334155;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 18px 25px;
+            border-bottom: 1px solid #1e293b;
+        }
+
+        tr:hover td {
+            background: #252f47;
+        }
+
+        .id-cell {
+            font-family: 'Courier New', monospace;
+            color: #38bdf8;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .title-cell {
+            color: #e2e8f0;
+            font-weight: 500;
+        }
+
+        .url-cell {
+            color: #64748b;
+            font-size: 0.9em;
+            max-width: 300px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .url-cell a {
+            color: #64748b;
+            text-decoration: none;
+        }
+
+        .url-cell a:hover {
+            color: #38bdf8;
+        }
+
+        .click-cell {
+            color: #94a3b8;
+            font-size: 0.9em;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 60px 20px;
+            color: #64748b;
+        }
+
+        .json-section {
+            margin-top: 30px;
+        }
+
+        .json-block {
+            background: #0f172a;
+            border-radius: 8px;
+            padding: 25px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            line-height: 1.7;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .k { color: #7dd3fc; }      /* key */
+        .s { color: #86efac; }      /* string */
+        .n { color: #fca5a5; }      /* number */
+        .b { color: #94a3b8; }      /* bracket */
+    </style>
+<base target="_blank">
+</head>
+<body>
+    <div class="container">
+        <h1>🔗 Encurtador JSON</h1>
+
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-num" id="totalLinks">0</div>
+                <div class="stat-label">Links</div>
+            </div>
+            <div class="stat">
+                <div class="stat-num" id="totalClicks">0</div>
+                <div class="stat-label">Cliques</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h2>📋 Links Cadastrados</h2>
+            </div>
+            <div id="tabela">
+                <div class="empty">Nenhum link cadastrado</div>
+            </div>
+        </div>
+
+        <div class="card json-section">
+            <div class="card-header">
+                <h2>💾 Database JSON</h2>
+            </div>
+            <div id="jsonView" class="json-block"></div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== DATABASE JSON ====================
+        const db = {
+            links: [
+                { id: "shdgadj", title: "Google", url: "https://google.com", clicks: 42 },
+                { id: "k9m2pqx", title: "GitHub", url: "https://github.com", clicks: 128 },
+                { id: "b4n7wrt", title: "YouTube", url: "https://youtube.com", clicks: 67 },
+                { id: "f3j8lvc", title: "Stack Overflow", url: "https://stackoverflow.com", clicks: 15 },
+                { id: "h5d2nzm", title: "MDN Web Docs", url: "https://developer.mozilla.org", clicks: 33 }
+            ]
+        };
+
+        // ==================== RENDER ====================
+
+        function renderTabela() {
+            const container = document.getElementById('tabela');
+
+            if (db.links.length === 0) {
+                container.innerHTML = '<div class="empty">Nenhum link cadastrado</div>';
+                return;
+            }
+
+            let html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Título</th>
+                            <th>URL</th>
+                            <th>Clicks</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            db.links.forEach(link => {
+                html += `
+                    <tr>
+                        <td class="id-cell">${link.id}</td>
+                        <td class="title-cell">${link.title}</td>
+                        <td class="url-cell" title="${link.url}">
+                            <a href="${link.url}" target="_blank">${link.url}</a>
+                        </td>
+                        <td class="click-cell">${link.clicks}</td>
+                    </tr>
+                `;
+            });
+
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        function renderJson() {
+            const view = document.getElementById('jsonView');
+            const json = JSON.stringify(db, null, 2);
+
+            const highlighted = json
+                .replace(/"([^"]+)":/g, '<span class="k">"$1"</span>:')
+                .replace(/: "([^"]+)"/g, ': <span class="s">"$1"</span>')
+                .replace(/: (\d+)/g, ': <span class="n">$1</span>')
+                .replace(/[\{\}\[\]]/g, '<span class="b">$&</span>');
+
+            view.innerHTML = highlighted;
+        }
+
+        function renderStats() {
+            document.getElementById('totalLinks').textContent = db.links.length;
+            document.getElementById('totalClicks').textContent = db.links.reduce((a, l) => a + l.clicks, 0);
+        }
+
+        // ==================== INIT ====================
+
+        window.addEventListener('load', () => {
+            renderTabela();
+            renderJson();
+            renderStats();
+        });
+    </script>
+</body>
+</html>
